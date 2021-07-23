@@ -65,12 +65,8 @@ You can also use /dplay <song name> to play a song from Deezer.</b>
 @Client.on_message(filters.command('start'))
 async def start(client, message):
     buttons = [
-        [
-        InlineKeyboardButton('⚙️ Update Channel', url='https://t.me/subin_works'),
-        InlineKeyboardButton('🤖 Other Bots', url='https://t.me/subin_works/122'),
-    ],
-    [
-        InlineKeyboardButton('👨🏼‍💻 Developer', url='https://t.me/subinps'),
+       [
+        InlineKeyboardButton('👽 Creator', url='https://t.me/cyber_punk_me'),
         InlineKeyboardButton('🧩 Source', url='https://github.com/subinps/MusicPlayer'),
     ],
     [
@@ -86,15 +82,15 @@ async def start(client, message):
 @Client.on_message(filters.command("help"))
 async def show_help(client, message):
     buttons = [
-        [
-            InlineKeyboardButton('⚙️ Update Channel', url='https://t.me/subin_works'),
-            InlineKeyboardButton('🤖 Other Bots', url='https://t.me/subin_works/122'),
-        ],
-        [
-            InlineKeyboardButton('👨🏼‍💻 Developer', url='https://t.me/subinps'),
-            InlineKeyboardButton('🧩 Source', url='https://github.com/subinps/MusicPlayer'),
-        ]
+       [
+        InlineKeyboardButton('👽 Creator', url='https://t.me/cyber_punk_me'),
+        InlineKeyboardButton('🧩 Source', url='https://github.com/subinps/MusicPlayer'),
+    ],
+    [
+        InlineKeyboardButton('👨🏼‍🦯 Help', callback_data='help'),
+        
     ]
+    ] 
     reply_markup = InlineKeyboardMarkup(buttons)
     await message.reply_text(
         HELP,
