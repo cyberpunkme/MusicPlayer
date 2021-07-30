@@ -19,15 +19,11 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-from pyrogram import Client, idle, filters
+from pyrogram import Client, idle
 import os
-from threading import Thread
-import sys
 from config import Config
 from utils import mp
-import asyncio
 from pyrogram.raw import functions, types
-
 
 CHAT=Config.CHAT
 bot = Client(
@@ -41,14 +37,8 @@ if not os.path.isdir("./downloads"):
     os.makedirs("./downloads")
 async def main():
     async with bot:
-        await mp.startupradio()
-        await asyncio.sleep(2)
-        await mp.startupradio()
+        await mp.start_radio()
 
-def stop_and_restart():
-        bot.stop()
-        os.execl(sys.executable, sys.executable, *sys.argv)
-    
 bot.run(main())
 bot.start()
 bot.send(
@@ -127,6 +117,10 @@ bot.send(
                 description="Mute in VC"
             ),
             types.BotCommand(
+                command="volume",
+                description="Set volume between 0-200"
+            ),
+            types.BotCommand(
                 command="unmute",
                 description="Unmute in VC"
             ),
@@ -137,14 +131,6 @@ bot.send(
         ]
     )
 )
-
-
-@bot.on_message(filters.command("restart") & filters.user(Config.ADMINS))
-def restart(client, message):
-    message.reply_text("Restarting...")
-    Thread(
-        target=stop_and_restart
-        ).start()
 
 idle()
 bot.stop()

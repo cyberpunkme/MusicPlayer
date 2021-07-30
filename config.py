@@ -29,7 +29,7 @@ ydl_opts = {
 ydl = YoutubeDL(ydl_opts)
 links=[]
 finalurl=""
-STREAM=os.environ.get("STREAM_URL", "https://youtu.be/zcrUCvBD16k")
+STREAM=os.environ.get("STREAM_URL", "https://eu10.fastcast4u.com/clubfmuae")
 regex = r"^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+"
 match = re.match(regex,STREAM)
 if match:
@@ -52,8 +52,18 @@ class Config:
     else:
         LOG_GROUP=None
     STREAM_URL=finalurl
+    ADMIN_ONLY=os.environ.get("ADMIN_ONLY", "N")
     ARQ_API=os.environ.get("ARQ_API", "")
-    DURATION_LIMIT=int(os.environ.get("DUR", 15))
+    REPLY_MESSAGE=os.environ.get("REPLY_MESSAGE", None)
+    if REPLY_MESSAGE:
+        REPLY_MESSAGE=REPLY_MESSAGE
+    else:
+        REPLY_MESSAGE=None
+    EDIT_TITLE = os.environ.get("EDIT_TITLE", True)
+    if EDIT_TITLE == "NO":
+        EDIT_TITLE=None
+    DURATION_LIMIT=int(os.environ.get("MAXIMUM_DURATION", 15))
+    DELAY = int(os.environ.get("DELAY", 10))
     API_HASH = os.environ.get("API_HASH", "")
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "") 
     SESSION = os.environ.get("SESSION_STRING", "")

@@ -19,34 +19,29 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+
 from pyrogram import Client, filters
-from pyrogram.types import Message
-from utils import mp, RADIO, USERNAME
+from utils import USERNAME
 from config import Config
-from config import STREAM
-CHAT=Config.CHAT
 ADMINS=Config.ADMINS
-
-@Client.on_message(filters.command(["radio", f"radio@{USERNAME}"]) & filters.user(ADMINS) & (filters.chat(CHAT) | filters.private))
-async def radio(client, message: Message):
-    if 1 in RADIO:
-        k=await message.reply_text("Kindly stop existing Radio Stream /stopradio")
-        await mp.delete(k)
-        await mp.delete(message)
-        return
-    await mp.start_radio()
-    k=await message.reply_text(f"Started Radio: <code>{STREAM}</code>")
-    await mp.delete(k)
-    await mp.delete(message)
-
-@Client.on_message(filters.command(['stopradio', f"stopradio@{USERNAME}"]) & filters.user(ADMINS) & (filters.chat(CHAT) | filters.private))
-async def stop(_, message: Message):
-    if 0 in RADIO:
-        k=await message.reply_text("Kindly start Radio First /radio")
-        await mp.delete(k)
-        await mp.delete(message)
-        return
-    await mp.stop_radio()
-    k=await message.reply_text("Radio stream ended.")
-    await mp.delete(k)
-    await mp.delete(message)
+from pyrogram.errors import BotInlineDisabled
+@Client.on_message(filters.private & ~filters.bot & filters.incoming & ~filters.service & ~filters.me)
+async def reply(client, message): 
+    try:
+        inline = await client.get_inline_bot_results(USERNAME, "ORU_MANDAN_PM_VANNU")
+        await client.send_inline_bot_result(
+            message.chat.id,
+            query_id=inline.query_id,
+            result_id=inline.results[0].id,
+            hide_via=True
+            )
+    except BotInlineDisabled:
+        for admin in ADMINS:
+            try:
+                await client.send_message(chat_id=admin, text=f"Hey,\nIt seems you have disabled Inline Mode for @{USERNAME}\n\nA Nibba is spaming me in PM, enable inline mode for @{USERNAME} from @Botfather to reply him.")
+            except Exception as e:
+                print(e)
+                pass
+    except Exception as e:
+        print(e)
+        pass

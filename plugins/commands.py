@@ -21,15 +21,23 @@
 #SOFTWARE.
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram import Client, filters
-
-
-
-HOME_TEXT = "<b>Helo, [{}](tg://user?id={})\n\nIam MusicPlayer 2.0 which plays music in Channels and Groups 24*7\n\nI can even Stream Youtube Live in Your Voicechat\n\nDeploy Your Own bot from source code below\n\nHit /help to know about available commands.</b>"
+import signal
+from utils import USERNAME, FFMPEG_PROCESSES, mp
+from config import Config
+import os
+import sys
+import subprocess
+import asyncio
+from signal import SIGINT
+U=USERNAME
+CHAT=Config.CHAT
+msg=Config.msg
+HOME_TEXT = "<b>Helo, [{}](tg://user?id={})\n\nIam MusicPlayer 2.0 which plays music in Channels and Groups 24*7.\n\nI can even Stream Youtube Live in Your Voicechat.\n\nDeploy Your Own bot from source code below.\n\nHit /help to know about available commands.</b>"
 HELP = """
 
 <b>Add the bot and User account in your Group with admin rights.
 
-Start a VoiceChat
+Start a VoiceChat.
 
 Use /play <song name> or use /play as a reply to an audio file or youtube link.
 
@@ -55,6 +63,7 @@ You can also use /dplay <song name> to play a song from Deezer.</b>
 **/clean** Remove unused RAW PCM files.
 **/pause** Pause playing.
 **/resume** Resume playing.
+**/volume** Change volume(0-200).
 **/mute**  Mute in VC.
 **/unmute**  Unmute in VC.
 **/restart** Restarts the Bot.
@@ -62,7 +71,7 @@ You can also use /dplay <song name> to play a song from Deezer.</b>
 
 
 
-@Client.on_message(filters.command('start'))
+@Client.on_message(filters.command(['start', f'start@{U}']))
 async def start(client, message):
     buttons = [
        [
@@ -75,11 +84,13 @@ async def start(client, message):
     ]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply(HOME_TEXT.format(message.from_user.first_name, message.from_user.id), reply_markup=reply_markup)
+    m=await message.reply(HOME_TEXT.format(message.from_user.first_name, message.from_user.id), reply_markup=reply_markup)
+    await mp.delete(m)
+    await mp.delete(message)
 
 
 
-@Client.on_message(filters.command("help"))
+@Client.on_message(filters.command(["help", f"help@{U}"]))
 async def show_help(client, message):
     buttons = [
        [
@@ -92,7 +103,26 @@ async def show_help(client, message):
     ]
     ] 
     reply_markup = InlineKeyboardMarkup(buttons)
-    await message.reply_text(
+    if msg.get('help') is not None:
+        await msg['help'].delete()
+    msg['help'] = await message.reply_text(
         HELP,
         reply_markup=reply_markup
         )
+    await mp.delete(message)
+@Client.on_message(filters.command(["restart", f"restart@{U}"]) & filters.user(Config.ADMINS) & (filters.chat(CHAT) | filters.private))
+async def restart(client, message):
+    await message.reply_text("🔄 Restarting...")
+    await mp.delete(message)
+    process = FFMPEG_PROCESSES.get(CHAT)
+    if process:
+        try:
+            process.send_signal(SIGINT)
+        except subprocess.TimeoutExpired:
+            process.kill()
+        except Exception as e:
+            print(e)
+            pass
+        FFMPEG_PROCESSES[CHAT] = ""
+    os.execl(sys.executable, sys.executable, *sys.argv)
+    
