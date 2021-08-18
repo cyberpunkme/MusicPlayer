@@ -2,6 +2,7 @@
   "name": "Telegram Voice Chat Music Player Bot ",
   "description": "Telegram Bot to Play Audio in Telegram Voice Chats",
   "repository": "https://github.com/subinps/MusicPlayer",
+  "stack": "container",
   "keywords": [
     "telegram",
     "bot",
@@ -25,10 +26,6 @@
     "BOT_TOKEN": {
       "description": "Bot token of Bot, get from @Botfather",
       "required": true
-    },
-    "ARQ_API": {
-      "description": "get it for free from @ARQRobot",
-      "required": false
     },
     "SESSION_STRING": {
       "description": "Session string, read the README to learn how to export it with Pyrogram",

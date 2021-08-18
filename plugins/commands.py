@@ -21,14 +21,8 @@
 #SOFTWARE.
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram import Client, filters
-import signal
-from utils import USERNAME, FFMPEG_PROCESSES, mp
+from utils import USERNAME, mp
 from config import Config
-import os
-import sys
-import subprocess
-import asyncio
-from signal import SIGINT
 U=USERNAME
 CHAT=Config.CHAT
 msg=Config.msg
@@ -41,12 +35,12 @@ Start a VoiceChat.
 
 Use /play <song name> or use /play as a reply to an audio file or youtube link.
 
-You can also use /dplay <song name> to play a song from Deezer.</b>
+You can also use /splay <song name> to play a song from Jio Saavn or /cplay <channel username or channel id> to play music from a telegram channel.</b>
 
 **Common Commands**:
 
 **/play**  Reply to an audio file or YouTube link to play it or use /play <song name>.
-**/dplay** Play music from Deezer, Use /dplay <song name>
+**/splay** Play music from Jio Saavn, Use /splay <song name>
 **/player**  Show current playing song.
 **/help** Show help for commands
 **/playlist** Shows the playlist.
@@ -55,10 +49,13 @@ You can also use /dplay <song name> to play a song from Deezer.</b>
 **/skip** [n] ...  Skip current or n where n >= 2
 **/join**  Join voice chat.
 **/leave**  Leave current voice chat
+**/shuffle** Shuffle Playlist.
+**/cplay** Play music from a channel's music files.
 **/vc**  Check which VC is joined.
 **/stop**  Stop playing.
 **/radio** Start Radio.
 **/stopradio** Stops Radio Stream.
+**/clearplaylist** Clear the playlist.
 **/replay**  Play from the beginning.
 **/clean** Remove unused RAW PCM files.
 **/pause** Pause playing.
@@ -66,8 +63,9 @@ You can also use /dplay <song name> to play a song from Deezer.</b>
 **/volume** Change volume(0-200).
 **/mute**  Mute in VC.
 **/unmute**  Unmute in VC.
-**/restart** Restarts the Bot.
+**/restart**  Update and restarts the Bot.
 """
+
 
 
 
@@ -110,19 +108,3 @@ async def show_help(client, message):
         reply_markup=reply_markup
         )
     await mp.delete(message)
-@Client.on_message(filters.command(["restart", f"restart@{U}"]) & filters.user(Config.ADMINS) & (filters.chat(CHAT) | filters.private))
-async def restart(client, message):
-    await message.reply_text("🔄 Restarting...")
-    await mp.delete(message)
-    process = FFMPEG_PROCESSES.get(CHAT)
-    if process:
-        try:
-            process.send_signal(SIGINT)
-        except subprocess.TimeoutExpired:
-            process.kill()
-        except Exception as e:
-            print(e)
-            pass
-        FFMPEG_PROCESSES[CHAT] = ""
-    os.execl(sys.executable, sys.executable, *sys.argv)
-    
